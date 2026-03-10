@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmacckFy — Download</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0a0a0a;
+            --panel: #131313;
+            --border: #1e1e1e;
+            --accent: #00db75;
+            --accent-dim: #00db7520;
+            --accent-glow: #00db7540;
+            --danger: #ff4466;
+            --yellow: #ffcc00;
+            --cyan: #00ccff;
+            --text: #fafafa;
+            --sub: #888888;
+            --dim: #444444;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Scanline overlay ─────────────────── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.03) 2px,
+                rgba(0,0,0,0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* ── Noise texture ────────────────────── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+            position: relative;
+        }
+
+        /* ── Header ───────────────────────────── */
+        .logo {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: -2px;
+            line-height: 1;
+            text-shadow: 0 0 40px var(--accent-glow);
+            animation: glowPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { text-shadow: 0 0 40px var(--accent-glow); }
+            50% { text-shadow: 0 0 60px var(--accent-glow), 0 0 80px var(--accent-dim); }
+        }
+
+        .tagline {
+            font-size: 0.85rem;
+            color: var(--sub);
+            margin-top: 8px;
+            font-weight: 400;
+        }
+
+        .version-badge {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 4px 12px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 2px;
+            letter-spacing: 1px;
+        }
+
+        /* ── Divider ──────────────────────────── */
+        .divider {
+            border: none;
+            height: 1px;
+            background: var(--border);
+            margin: 40px 0;
+        }
+
+        /* ── Feature grid ─────────────────────── */
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .feature {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 16px 18px;
+            border-radius: 3px;
+            transition: border-color 0.3s, transform 0.2s;
+        }
+
+        .feature:hover {
+            border-color: var(--dim);
+            transform: translateY(-1px);
+        }
+
+        .feature-label {
+            font-size: 0.65rem;
+            color: var(--dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .feature-value {
+            font-size: 0.85rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .feature-value .hl {
+            color: var(--accent);
+        }
+
+        .feature-value .hl-cyan {
+            color: var(--cyan);
+        }
+
+        .feature-value .hl-yellow {
+            color: var(--yellow);
+        }
+
+        /* ── Download cards ───────────────────── */
+        .downloads {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .download-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 28px 24px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+        .download-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, var(--accent-dim) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .download-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--accent-dim);
+        }
+
+        .download-card:hover::before {
+            opacity: 1;
+        }
+
+        .os-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .os-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .os-detail {
+            font-size: 0.7rem;
+            color: var(--sub);
+            position: relative;
+            z-index: 1;
+        }
+
+        .dl-btn {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 8px 20px;
+            background: var(--accent);
+            color: #0a0a0a;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 2px;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+            transition: all 0.2s;
+        }
+
+        .download-card:hover .dl-btn {
+            background: #fff;
+            color: #0a0a0a;
+        }
+
+        /* ── Terminal preview ─────────────────── */
+        .terminal {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .terminal-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 14px;
+            background: #0e0e0e;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.r { background: var(--danger); }
+        .terminal-dot.y { background: var(--yellow); }
+        .terminal-dot.g { background: var(--accent); }
+
+        .terminal-title {
+            font-size: 0.7rem;
+            color: var(--dim);
+            margin-left: 8px;
+        }
+
+        .terminal-body {
+            padding: 18px 20px;
+            font-size: 0.8rem;
+            line-height: 1.8;
+            color: var(--sub);
+        }
+
+        .terminal-body .prompt { color: var(--accent); }
+        .terminal-body .cmd { color: var(--text); }
+        .terminal-body .out { color: var(--dim); }
+        .terminal-body .out-accent { color: var(--accent); }
+        .terminal-body .out-yellow { color: var(--yellow); }
+        .terminal-body .out-cyan { color: var(--cyan); }
+
+        /* ── Cycle diagram ────────────────────── */
+        .cycle {
+            text-align: center;
+            padding: 24px;
+            margin-bottom: 40px;
+        }
+
+        .cycle-label {
+            font-size: 0.65rem;
+            color: var(--dim);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .cycle-flow {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--sub);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .cycle-step {
+            color: var(--accent);
+            padding: 6px 14px;
+            border: 1px solid var(--accent-dim);
+            border-radius: 2px;
+            background: var(--accent-dim);
+        }
+
+        .cycle-arrow {
+            color: var(--dim);
+            font-size: 1.2rem;
+        }
+
+        /* ── Footer ───────────────────────────── */
+        .footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--dim);
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer a {
+            color: var(--sub);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: var(--accent);
+        }
+
+        /* ── Responsive ───────────────────────── */
+        @media (max-width: 600px) {
+            .container { padding: 40px 16px 60px; }
+            .logo { font-size: 2.4rem; }
+            .features { grid-template-columns: 1fr; }
+            .downloads { grid-template-columns: 1fr; }
+            .cycle-flow { flex-direction: column; }
+            .cycle-arrow { transform: rotate(90deg); }
+        }
+
+        /* ── Fade-in animation ────────────────── */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(12px);
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .fade-in:nth-child(1) { animation-delay: 0.05s; }
+        .fade-in:nth-child(2) { animation-delay: 0.1s; }
+        .fade-in:nth-child(3) { animation-delay: 0.15s; }
+        .fade-in:nth-child(4) { animation-delay: 0.2s; }
+        .fade-in:nth-child(5) { animation-delay: 0.25s; }
+        .fade-in:nth-child(6) { animation-delay: 0.3s; }
+        .fade-in:nth-child(7) { animation-delay: 0.35s; }
+        .fade-in:nth-child(8) { animation-delay: 0.4s; }
+        .fade-in:nth-child(9) { animation-delay: 0.45s; }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div class="fade-in">
+            <div class="logo">SMACCKFY</div>
+            <div class="tagline">Sound-Activated Keypress Engine — Cross-Platform</div>
+            <div class="version-badge">v2.5.0</div>
+        </div>
+
+        <hr class="divider fade-in">
+
+        <div class="features fade-in">
+            <div class="feature">
+                <div class="feature-label">Engine</div>
+                <div class="feature-value"><span class="hl">Humanized</span> keypress simulation</div>
+            </div>
+            <div class="feature">
+                <div class="feature-label">Reaction</div>
+                <div class="feature-value"><span class="hl-cyan">Gaussian</span> timing &amp; fatigue model</div>
+            </div>
+            <div class="feature">
+                <div class="feature-label">Binding</div>
+                <div class="feature-value">Any key — <span class="hl-yellow">A-Z, 0-9, F1-F8</span></div>
+            </div>
+            <div class="feature">
+                <div class="feature-label">Detection</div>
+                <div class="feature-value">Live volume meter + <span class="hl">threshold</span></div>
+            </div>
+        </div>
+
+        <div class="cycle fade-in">
+            <div class="cycle-label">Cycle</div>
+            <div class="cycle-flow">
+                <span class="cycle-step">PRESS</span>
+                <span class="cycle-arrow">→</span>
+                <span class="cycle-step">LISTEN</span>
+                <span class="cycle-arrow">→</span>
+                <span class="cycle-step">PRESS</span>
+                <span class="cycle-arrow">→</span>
+                <span class="cycle-step">COOLDOWN</span>
+                <span class="cycle-arrow">→</span>
+                <span class="cycle-step" style="border-color: var(--yellow); color: var(--yellow); background: #ffcc0015;">REPEAT</span>
+            </div>
+        </div>
+
+        <!-- ── DOWNLOAD LINKS ─────────────────────────────
+             Replace the href="#" with your actual release URLs
+             after uploading to GitHub Releases.
+             Example: https://github.com/Kalleal08/SmacckFy-Releases/releases/download/v2.5.0/SmacckFy-Mac.zip
+        ──────────────────────────────────────────────────── -->
+
+        <div class="downloads fade-in">
+            <a class="download-card" href="#" id="mac-download">
+                <div class="os-icon">🍎</div>
+                <div class="os-name">macOS</div>
+                <div class="os-detail">Universal — Apple Silicon &amp; Intel</div>
+                <span class="dl-btn">DOWNLOAD</span>
+            </a>
+            <a class="download-card" href="#" id="win-download">
+                <div class="os-icon">🪟</div>
+                <div class="os-name">Windows</div>
+                <div class="os-detail">64-bit — Windows 10 / 11</div>
+                <span class="dl-btn">DOWNLOAD</span>
+            </a>
+        </div>
+
+        <div class="terminal fade-in">
+            <div class="terminal-bar">
+                <div class="terminal-dot r"></div>
+                <div class="terminal-dot y"></div>
+                <div class="terminal-dot g"></div>
+                <div class="terminal-title">SmacckFy v2.5.0</div>
+            </div>
+            <div class="terminal-body">
+                <span class="out">SmacckFy v2.5.0 ready on Windows.</span><br>
+                <span class="out">Humanized input active.</span><br>
+                <span class="out-accent">[14:32:07]</span> <span class="cmd">Started — key [Space]  delay 1.0s-2.0s  react 100ms</span><br>
+                <span class="out-accent">[14:32:12]</span> <span class="cmd">GO!</span><br>
+                <span class="out-accent">[14:32:12]</span> <span class="out">[Space] pressed  (cycle start  87ms hesit)</span><br>
+                <span class="out-accent">[14:32:12]</span> <span class="out">Waiting for sound...</span><br>
+                <span class="out-accent">[14:32:18]</span> <span class="out-yellow">[Space] pressed  (sound  112ms react)</span><br>
+                <span class="out-accent">[14:32:18]</span> <span class="out-cyan">Cooldown 1.4s...</span><br>
+            </div>
+        </div>
+
+        <div class="footer fade-in">
+            <p>Built by <a href="https://github.com/Kalleal08">Kalleal08</a></p>
+        </div>
+
+    </div>
+</body>
+</html>
